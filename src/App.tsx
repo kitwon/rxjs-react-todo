@@ -1,26 +1,25 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
+import Todos from './components/Todos'
+
+import 'todomvc-common/base.css';
+import 'todomvc-app-css/index.css';
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Router>
+        <Route extract path="/" render={() => <Redirect to="/todos/" />}></Route>
+      </Router>
+
+      <Router basename="/todos/">
+        <div>
+          <Route exact path="/" component={Todos} />
+          <Route exact path="/:filter" component={Todos} />
+        </div>
+      </Router>
     </div>
-  );
+  )
 }
 
 export default App;
