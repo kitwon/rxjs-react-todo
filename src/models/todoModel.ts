@@ -1,9 +1,9 @@
-import { v4 } from 'node-uuid'
+import { v4 } from 'uuid'
 
 export default class Todo {
   id: string
   title: string
-  completed: boolean
+  completed?: boolean
 
   constructor(title: string) {
     this.id = v4()

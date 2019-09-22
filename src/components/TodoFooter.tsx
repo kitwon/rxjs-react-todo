@@ -2,18 +2,20 @@ import React, { FunctionComponent } from 'react'
 import { NavLink } from 'react-router-dom'
 
 interface FooterProps {
-  hasCompleted?: boolean
+  hasCompleted: boolean
   remainingCount: number
+  onClearCompleteClick: () => void
 }
 
 const TodoFooter: FunctionComponent<FooterProps> = (props: FooterProps) => {
-  const { hasCompleted, remainingCount } = props
+  const { hasCompleted, remainingCount, onClearCompleteClick } = props
   let clearCompletedButton = null
 
   if (hasCompleted) {
     clearCompletedButton = (
       <button 
         className="clear-completed"
+        onClick={onClearCompleteClick}
       >
         Clear Completed
       </button>
