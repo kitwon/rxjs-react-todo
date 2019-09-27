@@ -4,6 +4,7 @@ export default class Todo {
   id: string
   title: string
   completed?: boolean
+  message?: string
 
   constructor(title: string) {
     this.id = v4()

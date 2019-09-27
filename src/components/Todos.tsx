@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useEffect } from 'react'
+import React, { useState, useEffect, FC } from 'react'
 import TodoHeader from './TodoHeader'
 import TodoFooter from './TodoFooter'
 import TodoList from './TodoList'
@@ -12,12 +12,13 @@ interface RouteParams {
   filter: string
 }
 
-const Todos: FunctionComponent<RouteComponentProps<RouteParams>> = (props) => {
+const Todos: FC<RouteComponentProps<RouteParams>> = (props) => {
   const [todos, setTodos] = useState<Todo[]>([])
   const handleKeyDown = (title: string): void => TodoService.add(title)
   const handleToggleClick = (id: string): void => TodoService.toggle(id)
   const handleDeleteClick = (id: string): void => TodoService.delete(id)
-  const handleRemoveComplete = () => TodoService.removeComplete()
+  const handleErrorClick = (todo: Todo) => TodoService.add(todo)
+  const handleRemoveComplete = (): void => TodoService.removeComplete()
   const handleEdit = (id: string, title: string): void => todoService.modify(id, title)
   const reaminingCount = todos.filter(i => !i.completed).length
   const hasComplete = todos.length > reaminingCount
@@ -56,6 +57,7 @@ const Todos: FunctionComponent<RouteComponentProps<RouteParams>> = (props) => {
             onToggleClick={handleToggleClick}
             onEdit={handleEdit}
             onDeleteClick={handleDeleteClick}
+            onErrorClick={handleErrorClick}
           />
         ))}
       </TodoList>

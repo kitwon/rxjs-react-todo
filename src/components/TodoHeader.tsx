@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef } from 'react'
+import React, { useRef, FC } from 'react'
 
 interface HeaderProps {
   onKeyDown: (title: string) => void
@@ -6,7 +6,7 @@ interface HeaderProps {
 
 const ENTER_KEY_CODE = 13
 
-const TodoHeader: FunctionComponent<HeaderProps> = ({ onKeyDown }) => {
+const TodoHeader: FC<HeaderProps> = ({ onKeyDown }) => {
   const input = useRef<HTMLInputElement>(null)
   const add = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     if (event.keyCode !== ENTER_KEY_CODE) return

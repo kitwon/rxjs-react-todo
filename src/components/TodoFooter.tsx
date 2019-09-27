@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react'
+import React, { FC } from 'react'
 import { NavLink } from 'react-router-dom'
 
 interface FooterProps {
@@ -7,7 +7,7 @@ interface FooterProps {
   onClearCompleteClick: () => void
 }
 
-const TodoFooter: FunctionComponent<FooterProps> = (props: FooterProps) => {
+const TodoFooter: FC<FooterProps> = (props: FooterProps) => {
   const { hasCompleted, remainingCount, onClearCompleteClick } = props
   let clearCompletedButton = null
 

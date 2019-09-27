@@ -13,11 +13,8 @@ const App: React.FC = () => {
         <div>
           <Route exact path="/" component={Todos} />
           <Route exact path="/:filter" component={Todos} />
+          <Route extract path="/*" render={() => <Redirect to="/" />}></Route>
         </div>
-      </Router>
-
-      <Router>
-        <Route extract path="*" render={() => <Redirect to="/todos/" />}></Route>
       </Router>
     </div>
   )

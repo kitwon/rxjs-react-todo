@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "askForPassword": true,
+      "database": "./database/todos.db",
+      "dialect": "SQLite",
+      "name": "Todos"
+    }
+  ],
+  "sqltools.useNodeRuntime": true
+}

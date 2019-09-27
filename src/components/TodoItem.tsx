@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState, KeyboardEvent } from 'react'
+import React, { useEffect, useState, KeyboardEvent, FC } from 'react'
 import classnames from 'classnames'
 import Todo from '../models/todoModel'
 
@@ -6,14 +6,15 @@ interface ItemProps {
   todo: Todo
   onToggleClick: (id: string) => void
   onDeleteClick: (id: string) => void
+  onErrorClick: (todo: Todo) => void
   onEdit: (id: string, title: string) => void
 }
 
 const ESCAP_KEY = 27
 const ENTER_KEY = 13
 
-const TodoItem: FunctionComponent<ItemProps> = (props) => {
-  const { todo, onToggleClick, onDeleteClick, onEdit } = props
+const TodoItem: FC<ItemProps> = (props) => {
+  const { todo, onToggleClick, onDeleteClick, onEdit, onErrorClick } = props
   const [listClasses, setListClasses] = useState('')
   const [editing, setEditing] = useState(false)
   const [editedTitle, setTitle] = useState(todo.title)
@@ -51,11 +52,11 @@ const TodoItem: FunctionComponent<ItemProps> = (props) => {
           onChange={() => onToggleClick(todo.id)}
         />
         <label onDoubleClick={handleEdit}>{todo.title}</label>
-        <button 
-          className="destroy" 
-          onClick={() => onDeleteClick(todo.id)}
-        >
-        </button>
+
+        { todo.message
+          ? <button className="retry" onClick={() => onErrorClick(todo) }>!</button>
+          : <button className="destroy" onClick={() => onDeleteClick(todo.id)} />
+        }
       </div>
       <input
         type="text"

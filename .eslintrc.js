@@ -17,8 +17,6 @@ module.exports = {
     'prettier/@typescript-eslint'
   ],
   rules: {
-    '@typescript-eslint/explicit-function-return-type': ['warn', {
-      allowExpressions: true
-    }]
+    '@typescript-eslint/explicit-function-return-type': 'off'
   }
 };
