@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
-import { ajax } from 'rxjs/ajax';
-import { map, scan, publishReplay, refCount, tap, switchMap, catchError, retryWhen, delay } from 'rxjs/operators';
+import { ajax, AjaxRequest } from 'rxjs/ajax';
+import { map, scan, publishReplay, refCount, tap, switchMap, catchError, retryWhen, delay, mapTo } from 'rxjs/operators';
 import Todo from '../models/todoModel';
 
 type ListTodo = (todos: Todo[]) => Todo[];
@@ -20,14 +20,14 @@ class TodoService {
 
   // Local control stream
   update$ = new BehaviorSubject<ListTodo>((todos: Todo[]) => todos)
-  // create$: Observable<ListTodo>
   toggle$ = new Subject<string>()
   delete$ = new Subject<string>()
   modify$ = new Subject<Todo>()
   removeComplete$ = new Subject()
 
   constructor() {
-    // Create Stream
+    // Add todo
+    // Crete add stream
     this.createTodo$
       .pipe(
         map(todo => (todos: Todo[]) => {
@@ -39,9 +39,10 @@ class TodoService {
       )
       .subscribe(this.update$);
 
+    // Async to server
     this.createTodo$
       .pipe(
-        switchMap(todo => this.postTodo(todo)),
+        switchMap(todo => this.createTodoRemote(todo)),
         map(todo => (todos: Todo[]) => {
           const t = todos.find(i => i.id === todo.id)
           if (t && t.message) delete t.message
@@ -51,6 +52,7 @@ class TodoService {
       )
       .subscribe(this.update$) 
 
+    // Change todo status
     this.toggle$
       .pipe(
         map(uuid => (todos: Todo[]) => {
@@ -61,10 +63,12 @@ class TodoService {
       )
       .subscribe(this.update$);
 
+    // Delete todo
     this.delete$
       .pipe(map(uuid => (todos: Todo[]) => todos.filter(t => t.id !== uuid)))
       .subscribe(this.update$);
 
+    // Modify todo
     this.modify$
       .pipe(
         map(({ id, title }) => (todos: Todo[]) => {
@@ -78,9 +82,6 @@ class TodoService {
     this.removeComplete$
       .pipe(map(() => (todos: Todo[]) => todos.filter(i => !i.completed)))
       .subscribe(this.update$)
-
-    // Init Main Stream
-    // this.createTodo$.subscribe(this.create$)
 
     // Cache
     this.todos$ = this.update$
@@ -113,16 +114,25 @@ class TodoService {
     this.removeComplete$.next()
   }
 
-  public postTodo(todo: Todo) {
-    return ajax.post('/api/todo', todo, { 'content-type': 'application/json' })
+  private request(options: AjaxRequest) {
+    return ajax({
+      method: 'GET',
+      ...options,
+      headers: { 'content-type': 'application/json' ,...options.headers }
+    }).pipe(
+      retryWhen(err => err.pipe(
+        delay(1000),
+        scan((acc) => {
+          if (acc >= 2) throw new Error('Retry limit exceeded!')
+          return acc + 1
+        }, 0)
+      ))
+    )
+  }
+
+  public createTodoRemote(todo: Todo) {
+    return this.request({ url: '/api/todo', method: 'POST', body: todo })
       .pipe(
-        retryWhen(err => err.pipe(
-          delay(1000),
-          scan((acc) => {
-            if (acc >= 2) throw new Error('Retry limit exceeded!')
-            return acc + 1
-          }, 0)
-        )),
         map(res => res.response.data as Todo),
         catchError(() => of({ ...todo, message: '新建Todo失败' } as Todo))
       )
