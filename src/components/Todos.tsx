@@ -24,14 +24,8 @@ const Todos: FC<RouteComponentProps<RouteParams>> = (props) => {
   const hasComplete = todos.length > reaminingCount
 
   useEffect(() => {
-    const todo$ = TodoService.todos$
-      .subscribe(todos => {
-        setTodos([...todos])
-      })
-
-    return function cleanUp() {
-      todo$.unsubscribe()
-    }
+    const todos$ = TodoService.todos$.subscribe(todos => setTodos([...todos]))
+    return () => todos$.unsubscribe();
   }, [])
 
   const getVisibleTodos = (todos: Todo[]): Todo[] => {

@@ -11,7 +11,7 @@ module.exports = function(app) {
 
   // Error handler
   app.use((err, req, res, next) => {
-    if (err && req.xhr) {
+    if (err && req.path.indexOf('/api/todo') >= 0) {
       console.log(err)
       res.status(500).send(err)
     }

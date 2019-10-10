@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
 import { ajax, AjaxRequest } from 'rxjs/ajax';
-import { map, scan, publishReplay, refCount, tap, switchMap, catchError, retryWhen, delay, mapTo } from 'rxjs/operators';
+import { map, scan, publishReplay, refCount, tap, switchMap, catchError, retryWhen, delay } from 'rxjs/operators';
 import Todo from '../models/todoModel';
 
 type ListTodo = (todos: Todo[]) => Todo[];
@@ -31,11 +31,11 @@ class TodoService {
     this.createTodo$
       .pipe(
         map(todo => (todos: Todo[]) => {
-          let t = todos.find(i => i.id === todo.id)
-          if (t) t = todo
+          const t = todos.find(i => i.id === todo.id)
           if (!t) return todos.concat(todo)
+
           return todos
-        }),
+        })
       )
       .subscribe(this.update$);
 
@@ -44,9 +44,8 @@ class TodoService {
       .pipe(
         switchMap(todo => this.createTodoRemote(todo)),
         map(todo => (todos: Todo[]) => {
-          const t = todos.find(i => i.id === todo.id)
-          if (t && t.message) delete t.message
-          if (t && todo.message) t.message = todo.message
+          const index = todos.findIndex(i => i.id === todo.id)
+          todos.splice(index, 1, todo)
           return todos
         })
       )
@@ -114,7 +113,7 @@ class TodoService {
     this.removeComplete$.next()
   }
 
-  private request(options: AjaxRequest) {
+  private request$(options: AjaxRequest) {
     return ajax({
       method: 'GET',
       ...options,
@@ -130,8 +129,15 @@ class TodoService {
     )
   }
 
+  /**
+   * 新建Todo
+   *
+   * @param {Todo} todo
+   * @returns {Observable<Todo>} Todo stream
+   * @memberof TodoService
+   */
   public createTodoRemote(todo: Todo) {
-    return this.request({ url: '/api/todo', method: 'POST', body: todo })
+    return this.request$({ url: '/api/todo', method: 'POST', body: todo })
       .pipe(
         map(res => res.response.data as Todo),
         catchError(() => of({ ...todo, message: '新建Todo失败' } as Todo))
