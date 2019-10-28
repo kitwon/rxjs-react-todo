@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 interface FooterProps {
   hasCompleted: boolean
   remainingCount: number
-  onClearCompleteClick: () => void
+  onClearCompleteClick?: () => void
 }
 
 const TodoFooter: FC<FooterProps> = (props: FooterProps) => {

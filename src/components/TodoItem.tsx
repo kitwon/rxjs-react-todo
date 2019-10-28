@@ -4,10 +4,10 @@ import Todo from '../models/todoModel'
 
 interface ItemProps {
   todo: Todo
-  onToggleClick: (id: string) => void
-  onDeleteClick: (id: string) => void
-  onErrorClick: (todo: Todo) => void
-  onEdit: (id: string, title: string) => void
+  onToggleClick?: (id: string) => void
+  onDeleteClick?: (id: string) => void
+  onErrorClick?: (todo: Todo) => void
+  onEdit?: (id: string, title: string) => void
 }
 
 const ESCAP_KEY = 27
@@ -21,9 +21,9 @@ const TodoItem: FC<ItemProps> = (props) => {
 
   function submit(): void {
     if (editedTitle.length) {
-      onEdit(todo.id, editedTitle)
+      onEdit && onEdit(todo.id, editedTitle)
     } else {
-      onDeleteClick(todo.id)
+      onDeleteClick && onDeleteClick(todo.id)
     }
       setEditing(false)
   }
@@ -49,13 +49,13 @@ const TodoItem: FC<ItemProps> = (props) => {
           type="checkbox"
           className="toggle"
           checked={todo.completed}
-          onChange={() => onToggleClick(todo.id)}
+          onChange={() => onToggleClick && onToggleClick(todo.id)}
         />
         <label onDoubleClick={handleEdit}>{todo.title}</label>
 
         { todo.message
-          ? <button className="retry" onClick={() => onErrorClick(todo) }>!</button>
-          : <button className="destroy" onClick={() => onDeleteClick(todo.id)} />
+          ? <button className="retry" onClick={() => onErrorClick && onErrorClick(todo) }>!</button>
+          : <button className="destroy" onClick={() => onDeleteClick && onDeleteClick(todo.id)} />
         }
       </div>
       <input

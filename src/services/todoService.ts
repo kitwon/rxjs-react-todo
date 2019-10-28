@@ -1,6 +1,6 @@
-import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
-import { ajax, AjaxRequest } from 'rxjs/ajax';
-import { map, scan, publishReplay, refCount, tap, switchMap, catchError, retryWhen, delay } from 'rxjs/operators';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { ajax } from 'rxjs/ajax';
+import { map, scan, publishReplay, refCount, tap, switchMap } from 'rxjs/operators';
 import Todo from '../models/todoModel';
 
 type ListTodo = (todos: Todo[]) => Todo[];
@@ -20,10 +20,6 @@ class TodoService {
 
   // Local control stream
   update$ = new BehaviorSubject<ListTodo>((todos: Todo[]) => todos)
-  toggle$ = new Subject<string>()
-  delete$ = new Subject<string>()
-  modify$ = new Subject<Todo>()
-  removeComplete$ = new Subject()
 
   constructor() {
     // Add todo
@@ -51,37 +47,6 @@ class TodoService {
       )
       .subscribe(this.update$) 
 
-    // Change todo status
-    this.toggle$
-      .pipe(
-        map(uuid => (todos: Todo[]) => {
-          const target = todos.find(todo => todo.id === uuid);
-          if (target) target.completed = !target.completed;
-          return todos;
-        })
-      )
-      .subscribe(this.update$);
-
-    // Delete todo
-    this.delete$
-      .pipe(map(uuid => (todos: Todo[]) => todos.filter(t => t.id !== uuid)))
-      .subscribe(this.update$);
-
-    // Modify todo
-    this.modify$
-      .pipe(
-        map(({ id, title }) => (todos: Todo[]) => {
-          const todo = todos.find(i => i.id === id);
-          if (todo) todo.title = title;
-          return todos;
-        })
-      )
-      .subscribe(this.update$);
-    
-    this.removeComplete$
-      .pipe(map(() => (todos: Todo[]) => todos.filter(i => !i.completed)))
-      .subscribe(this.update$)
-
     // Cache
     this.todos$ = this.update$
        .pipe(
@@ -97,38 +62,6 @@ class TodoService {
     this.createTodo$.next(value);
   }
 
-  public toggle(uuid: string): void {
-    this.toggle$.next(uuid);
-  }
-
-  public delete(uuid: string): void {
-    this.delete$.next(uuid);
-  }
-
-  public modify(uuid: string, title: string): void {
-    this.modify$.next({ id: uuid, title })
-  }
-
-  public removeComplete(): void {
-    this.removeComplete$.next()
-  }
-
-  private request$(options: AjaxRequest) {
-    return ajax({
-      method: 'GET',
-      ...options,
-      headers: { 'content-type': 'application/json' ,...options.headers }
-    }).pipe(
-      retryWhen(err => err.pipe(
-        delay(1000),
-        scan((acc) => {
-          if (acc >= 2) throw new Error('Retry limit exceeded!')
-          return acc + 1
-        }, 0)
-      ))
-    )
-  }
-
   /**
    * 新建Todo
    *
@@ -137,11 +70,14 @@ class TodoService {
    * @memberof TodoService
    */
   public createTodoRemote(todo: Todo) {
-    return this.request$({ url: '/api/todo', method: 'POST', body: todo })
-      .pipe(
-        map(res => res.response.data as Todo),
-        catchError(() => of({ ...todo, message: '新建Todo失败' } as Todo))
-      )
+    return ajax({
+      url: '/api/todo',
+      method: 'POST',
+      body: todo,
+      headers: {'content-type': 'application/json'} }
+    ).pipe(
+      map(res => res.response.data as Todo)
+    )
   }
 }
 

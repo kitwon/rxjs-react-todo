@@ -5,7 +5,6 @@ import TodoList from './TodoList'
 import TodoItem from './TodoItem'
 import Todo from '../models/todoModel'
 import TodoService from '../services/todoService'
-import todoService from '../services/todoService'
 import { RouteComponentProps } from 'react-router'
 
 interface RouteParams {
@@ -15,11 +14,11 @@ interface RouteParams {
 const Todos: FC<RouteComponentProps<RouteParams>> = (props) => {
   const [todos, setTodos] = useState<Todo[]>([])
   const handleKeyDown = (title: string): void => TodoService.add(title)
-  const handleToggleClick = (id: string): void => TodoService.toggle(id)
-  const handleDeleteClick = (id: string): void => TodoService.delete(id)
+  // const handleToggleClick = (id: string): void => TodoService.toggle(id)
+  // const handleDeleteClick = (id: string): void => TodoService.delete(id)
   const handleErrorClick = (todo: Todo) => TodoService.add(todo)
-  const handleRemoveComplete = (): void => TodoService.removeComplete()
-  const handleEdit = (id: string, title: string): void => todoService.modify(id, title)
+  // const handleRemoveComplete = (): void => TodoService.removeComplete()
+  // const handleEdit = (id: string, title: string): void => todoService.modify(id, title)
   const reaminingCount = todos.filter(i => !i.completed).length
   const hasComplete = todos.length > reaminingCount
 
@@ -48,9 +47,9 @@ const Todos: FC<RouteComponentProps<RouteParams>> = (props) => {
           <TodoItem
             todo={i}
             key={i.id}
-            onToggleClick={handleToggleClick}
-            onEdit={handleEdit}
-            onDeleteClick={handleDeleteClick}
+            // onToggleClick={handleToggleClick}
+            // onEdit={handleEdit}
+            // onDeleteClick={handleDeleteClick}
             onErrorClick={handleErrorClick}
           />
         ))}
@@ -58,7 +57,7 @@ const Todos: FC<RouteComponentProps<RouteParams>> = (props) => {
       <TodoFooter
         remainingCount={reaminingCount}
         hasCompleted={hasComplete}
-        onClearCompleteClick={handleRemoveComplete}
+        // onClearCompleteClick={handleRemoveComplete}
       />
     </div>
   )
