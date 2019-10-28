@@ -38,11 +38,12 @@ class TodoService {
     // Async to server
     this.createTodo$
       .pipe(
-        switchMap(todo => this.createTodoRemote(todo)),
+        switchMap(todo => this.createTodoSync(todo)),
         map(todo => (todos: Todo[]) => {
-          const index = todos.findIndex(i => i.id === todo.id)
-          todos.splice(index, 1, todo)
-          return todos
+          return todos.map(i => {
+            if (i.id === todo.id) return todo
+            return i
+          })
         })
       )
       .subscribe(this.update$) 
@@ -69,7 +70,7 @@ class TodoService {
    * @returns {Observable<Todo>} Todo stream
    * @memberof TodoService
    */
-  public createTodoRemote(todo: Todo) {
+  public createTodoSync(todo: Todo) {
     return ajax({
       url: '/api/todo',
       method: 'POST',
