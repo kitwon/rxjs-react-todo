@@ -1,6 +1,6 @@
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { map, scan, publishReplay, refCount, tap, switchMap } from 'rxjs/operators';
+import { map, scan, publishReplay, refCount, tap, switchMap, retryWhen, delay, catchError } from 'rxjs/operators';
 import Todo from '../models/todoModel';
 
 type ListTodo = (todos: Todo[]) => Todo[];
@@ -77,7 +77,18 @@ class TodoService {
       body: todo,
       headers: {'content-type': 'application/json'} }
     ).pipe(
-      map(res => res.response.data as Todo)
+      map(res => res.response.data as Todo),
+      retryWhen(err => err.pipe(
+        delay(1000),
+        scan((acc) => {
+          if (acc >= 2) throw new Error('Retry limit exceeded!')
+          return acc + 1
+        }, 0)
+      )),
+      catchError(() => {
+        todo.message = '新建Todo失败'
+        return of(todo)
+      })
     )
   }
 }
