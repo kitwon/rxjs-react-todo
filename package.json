@@ -46,7 +46,7 @@
     "eslint-config-prettier": "^6.3.0",
     "eslint-config-react-app": "^5.0.2",
     "eslint-plugin-react-hooks": "^2.0.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-ws": "^4.0.0",
     "morgan": "^1.9.1",
     "sqlite3": "^4.1.0",
